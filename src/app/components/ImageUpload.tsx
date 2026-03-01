@@ -17,14 +17,41 @@ interface ImageUploadProps {
 
 const MAX_IMAGES = 3;
 
-function fileToBase64(file: File): Promise<string> {
+
+/** Compress + resize an image file before base64-encoding it.
+ *  Max dimension: 1280 px. Quality: 75 %.
+ *  A typical 10 MB phone photo → ~200-300 KB → 3 images stay well under
+ *  Vercel's 4.5 MB serverless-function payload limit.
+ */
+function compressToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const MAX = 1280;
+      let { width, height } = img;
+      if (width > MAX || height > MAX) {
+        if (width >= height) {
+          height = Math.round((height * MAX) / width);
+          width = MAX;
+        } else {
+          width = Math.round((width * MAX) / height);
+          height = MAX;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL("image/jpeg", 0.75));
+    };
+    img.onerror = reject;
+    img.src = url;
   });
 }
+
 
 export type { ImageEntry };
 
@@ -47,7 +74,7 @@ export default function ImageUpload({ onImagesChange }: ImageUploadProps) {
       incoming.map(async (file) => ({
         id: crypto.randomUUID(),
         url: URL.createObjectURL(file),
-        base64: await fileToBase64(file),
+        base64: await compressToBase64(file),
         name: file.name,
       }))
     );
