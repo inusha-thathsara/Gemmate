@@ -43,7 +43,7 @@ Beyond triage, it generates practice questions based on the same concepts and tr
 - ↺ **Regenerate** — Re-generate any individual question
 - ⬇ **PDF export** — Save practice questions as formatted PDFs
 - 🛑 **Cancel in-flight** — Interrupt a triage or generation at any time
-- 📱 **Cross-platform** — Next.js web app + Flutter Android app
+- 📱 **Cross-platform** — Next.js web app + Flutter (Web & Android)
 
 ---
 
@@ -160,14 +160,18 @@ npm start
 Edit `mobile/lib/config.dart`:
 
 ```dart
-// Local development (Android emulator → your machine's localhost)
-const String kBaseUrl = 'http://10.0.2.2:3000';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
-// Physical device — use your machine's LAN IP:
-// const String kBaseUrl = 'http://192.168.1.xx:3000';
+// Auto-selects the correct URL based on platform:
+final String kBaseUrl = kIsWeb
+    ? 'http://localhost:3000'       // Flutter Web dev
+    : 'http://10.0.2.2:3000';      // Android emulator
 
-// Production — your deployed URL:
-// const String kBaseUrl = 'https://your-app.vercel.app';
+// Physical Android device — change to your LAN IP:
+// 'http://192.168.1.xx:3000'
+
+// Production — change to your deployed Vercel URL:
+// 'https://your-app.vercel.app'
 ```
 
 > **Note:** The Next.js web server must be running for the Flutter app to work. The Flutter app calls the same API routes — it does **not** embed the Gemini API key.
@@ -257,23 +261,33 @@ Returns one Socratic hint for a practice question. Hints are progressively more 
 
 ## Deployment
 
-### Web App
+### Next.js Web App
 
-| Platform | Notes |
-|---|---|
-| **Vercel** (recommended) | Zero-config. Add `GEMINI_API_KEY` in Environment Variables. Free tier has 10s function timeout — upgrade to Pro for longer Gemini calls. |
-| **Firebase App Hosting** | Connects natively to Google Cloud. Set `GEMINI_API_KEY` in Secrets. No short timeout issues. |
-| **Railway** | No function timeout limits. Free tier available. |
+| Platform | Free tier | Notes |
+|---|---|---|
+| **Vercel** ✅ (recommended) | ✅ Yes | Zero-config Next.js support. Add `GEMINI_API_KEY` in project settings → Environment Variables. |
+| **Railway** | ✅ Limited | No function timeout limits. Good fallback. |
+| **Firebase App Hosting** | ❌ No | Requires Blaze (pay-as-you-go) plan. |
 
-### Flutter App
+### Flutter Web App
 
-1. Set `kBaseUrl` in `config.dart` to your deployed backend URL.
-2. Build a release APK:
-   ```bash
-   cd mobile
-   flutter build apk --release
-   ```
-   Output: `mobile/build/app/outputs/flutter-apk/app-release.apk`
+Build and deploy to Firebase Hosting (free tier):
+```bash
+cd mobile
+flutter build web --release
+firebase deploy --only hosting
+```
+
+> Update `kBaseUrl` in `config.dart` to your deployed Vercel URL before building.
+
+### Flutter Android App
+
+Build a release APK and distribute via Firebase App Distribution (free):
+```bash
+cd mobile
+flutter build apk --release
+# APK: mobile/build/app/outputs/flutter-apk/app-release.apk
+```
 
 ---
 
