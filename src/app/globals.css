@@ -1,26 +1,303 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #05070f;
+  --bg-2: #080c18;
+  --surface: #0d1323;
+  --surface-2: #111829;
+  --surface-3: #162035;
+  --border: #1c2b47;
+  --border-bright: #253d6b;
+  --accent: #4f8eff;
+  --accent-dim: rgba(79, 142, 255, 0.18);
+  --accent-glow: rgba(79, 142, 255, 0.35);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167, 139, 250, 0.15);
+  --green: #34d399;
+  --amber: #fbbf24;
+  --red: #f87171;
+  --text-1: #eef2ff;
+  --text-2: #8ba3cc;
+  --text-3: #4d6490;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html,
+body {
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+  border-radius: 4px;
+}
+
+/* ── Ambient blobs ─────────────────────────────────────── */
+.ambient-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ambient-bg::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: -15%;
+  width: 70vw;
+  height: 70vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(79, 142, 255, 0.06) 0%, transparent 70%);
+}
+
+.ambient-bg::after {
+  content: "";
+  position: absolute;
+  top: 10%;
+  right: -20%;
+  width: 55vw;
+  height: 55vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.06) 0%, transparent 70%);
+}
+
+/* ── Spinner (CSS — compositor thread, never blocked by JS) ── */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.spin {
+  animation: spin 0.85s linear infinite;
+}
+
+/* ── Skeleton shimmer ──────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: -300% center;
+  }
+
+  100% {
+    background-position: 300% center;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(105deg,
+      var(--surface) 0%,
+      var(--surface-2) 35%,
+      var(--surface-3) 50%,
+      var(--surface-2) 65%,
+      var(--surface) 100%);
+  background-size: 300% 100%;
+  animation: shimmer 2.4s infinite ease-in-out;
+  border-radius: 8px;
+}
+
+/* ── Gradient text ─────────────────────────────────────── */
+.grad-blue {
+  background: linear-gradient(120deg, #60a5fa, #818cf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.grad-purple {
+  background: linear-gradient(120deg, #a78bfa, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Glow text ─────────────────────────────────────────── */
+.glow-text {
+  text-shadow: 0 0 40px rgba(79, 142, 255, 0.25);
+}
+
+/* ── Card base ─────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Noise overlay utility ─────────────────────────────── */
+.noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* ── Markdown prose ────────────────────────────────────── */
+.practice-md {
+  color: var(--text-2);
+  font-size: 13.5px;
+  line-height: 1.8;
+}
+
+.practice-md h1,
+.practice-md h2,
+.practice-md h3,
+.practice-md h4 {
+  color: var(--text-1);
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.practice-md h1 {
+  font-size: 17px;
+}
+
+.practice-md h2 {
+  font-size: 15px;
+}
+
+.practice-md h3 {
+  font-size: 13.5px;
+}
+
+.practice-md p {
+  margin-bottom: 12px;
+}
+
+.practice-md ul,
+.practice-md ol {
+  padding-left: 20px;
+  margin-bottom: 12px;
+}
+
+.practice-md ul {
+  list-style: disc;
+}
+
+.practice-md ol {
+  list-style: decimal;
+}
+
+.practice-md li {
+  margin-bottom: 5px;
+}
+
+.practice-md code {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 12px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 1px 6px;
+  color: #a5b4fc;
+}
+
+.practice-md pre {
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  overflow-x: auto;
+  margin-bottom: 14px;
+}
+
+.practice-md pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #c4ceff;
+}
+
+.practice-md blockquote {
+  border-left: 3px solid var(--purple);
+  padding-left: 14px;
+  color: var(--text-3);
+  margin: 14px 0;
+  font-style: italic;
+}
+
+.practice-md strong {
+  color: var(--text-1);
+  font-weight: 700;
+}
+
+.practice-md hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 18px 0;
+}
+
+/* ── Gradient border ───────────────────────────────────── */
+.gradient-border {
+  position: relative;
+  background: var(--surface);
+  border-radius: 20px;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* ── KaTeX dark-theme overrides ────────────────────────── */
+.katex {
+  color: var(--text-1);
+  font-size: 1.05em;
+}
+
+.katex-display {
+  padding: 12px 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.katex-display>.katex {
+  color: var(--text-1);
+}
+
+.katex .mord,
+.katex .mrel,
+.katex .mbin,
+.katex .mop,
+.katex .minner {
+  color: inherit;
 }
