@@ -3,6 +3,8 @@
 > **Crack your exam question instantly.**  
 > Upload a question image → get core concepts, the hidden trap, and a step-by-step attack plan — powered by Google Gemini 2.5 Flash.
 
+🌐 **Live demo:** [bora-quiz-helper.vercel.app](https://bora-quiz-helper.vercel.app)
+
 ---
 
 ## Table of Contents
@@ -171,7 +173,7 @@ final String kBaseUrl = kIsWeb
 // 'http://192.168.1.xx:3000'
 
 // Production — change to your deployed Vercel URL:
-// 'https://your-app.vercel.app'
+// 'https://bora-quiz-helper.vercel.app'
 ```
 
 > **Note:** The Next.js web server must be running for the Flutter app to work. The Flutter app calls the same API routes — it does **not** embed the Gemini API key.
