@@ -4,16 +4,16 @@
  * rendered as real, searchable vector text — not a rasterised image.
  */
 export function exportQuestionAsPdf(
-    contentHtml: string,
-    questionNumber: number
+  contentHtml: string,
+  questionNumber: number,
 ) {
-    const win = window.open("", "_blank", "width=860,height=1000");
-    if (!win) {
-        alert("Please allow pop-ups to export as PDF.");
-        return;
-    }
+  const win = window.open("", "_blank", "width=860,height=1000");
+  if (!win) {
+    alert("Please allow pop-ups to export as PDF.");
+    return;
+  }
 
-    win.document.write(`<!DOCTYPE html>
+  win.document.write(`<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -144,6 +144,6 @@ export function exportQuestionAsPdf(
 </body>
 </html>`);
 
-    win.document.close();
-    win.focus();
+  win.document.close();
+  win.focus();
 }

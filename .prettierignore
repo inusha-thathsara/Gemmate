@@ -1,0 +1,7 @@
+.next
+build
+node_modules
+coverage
+package-lock.json
+docs
+mobile

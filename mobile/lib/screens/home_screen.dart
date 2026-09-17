@@ -180,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                'Powered by Gemini 2.5 Flash',
+                                'Powered by Gemini 3.8 Flash',
                                 style: GoogleFonts.inter(
                                   color: const Color(0xFF4F8EFF),
                                   fontSize: 12,
@@ -280,7 +280,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 12),
                         ImageUploadWidget(
-                          onChanged: (imgs) => setState(() => _images = imgs),
+                          onChanged: (imgs) => setState(() {
+                            _images = imgs;
+                            if (imgs.isNotEmpty &&
+                                _error ==
+                                    'Please select at least one image before triaging.') {
+                              _error = null;
+                            }
+                          }),
                         ),
                       ],
                     ),

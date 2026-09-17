@@ -25,11 +25,11 @@
 
 Triage AI is a full-stack AI tool for students preparing for technical exams. It takes one or more photos of an exam question and returns a structured breakdown:
 
-| Card              | What it tells you                                  |
-| ----------------- | -------------------------------------------------- |
-| **Core Concepts** | The fundamental topics you need to know            |
-| **The Trap(s)**   | The trick or subtle pitfall hidden in the question |
-| **Attack Plan**   | A step-by-step strategy for solving the question   |
+| Card | What it tells you |
+|---|---|
+| **Core Concepts** | The fundamental topics you need to know |
+| **The Trap(s)** | The trick or subtle pitfall hidden in the question |
+| **Attack Plan** | A step-by-step strategy for solving the question |
 
 Beyond triage, it generates practice questions based on the same concepts and traps, provides Socratic hints (nudges, not answers), and can export questions as PDFs.
 
@@ -39,9 +39,8 @@ Beyond triage, it generates practice questions based on the same concepts and tr
 
 - 📸 **Multi-image upload** — Up to 3 images (gallery or camera)
 - 🧠 **AI Triage** — Core concepts, trap detection, attack plan
-- ⚡ **Gemini 3.x Flash + High Availability** — Powered by `gemini-3.8-flash` with automatic exponential backoff retry and cascading model fallback (`3.8` → `3.6` → `3.5` → `3.1-flash-lite`) to survive Google traffic spikes
 - 🎯 **Multiple traps** — Identifies all traps when more than one exists
-- ✏️ **Practice questions** — Generate multiple questions sequentially
+- ✏️ **Practice questions** — Generate multiple questions sequentially  
 - 💡 **Progressive hints** — Up to 3 Socratic hints per question (never gives answers)
 - ↺ **Regenerate** — Re-generate any individual question
 - ⬇ **PDF export** — Save practice questions as formatted PDFs
@@ -64,22 +63,12 @@ Bora/
 │       │   ├── ImageUpload.tsx
 │       │   ├── ResultCards.tsx
 │       │   ├── PracticeCard.tsx
-│       │   ├── SignInButton.tsx  # Optional Firebase Auth
 │       │   └── SkeletonLoader.tsx
 │       ├── utils/
 │       │   └── exportPdf.ts      # Browser-print PDF export
 │       ├── globals.css
 │       ├── layout.tsx
 │       └── page.tsx
-│
-├── lib/                          # Backend utilities & resilience layer
-│   ├── geminiEnv.ts              # Gemini 3.x caller, backoff retry & multi-tier model fallback
-│   ├── apiAuth.ts                # Firebase ID token validation
-│   ├── apiError.ts               # Secure error logging & dev diagnostics
-│   ├── firebaseAdmin.ts          # Server-side Firebase Admin SDK
-│   ├── firebaseClient.ts         # Client-side Firebase SDK
-│   ├── rateLimit.ts              # Firestore rate limiting & abuse protection
-│   └── validation.ts             # Zod input schemas
 │
 ├── mobile/                       # Flutter Android application
 │   └── lib/
@@ -106,63 +95,54 @@ Bora/
 ## Tech Stack
 
 ### Web App
-
-| Layer     | Technology                                        |
-| --------- | ------------------------------------------------- |
-| Framework | Next.js 16 (App Router)                           |
-| Language  | TypeScript                                        |
-| UI        | React 19 + Framer Motion                          |
-| Styling   | Tailwind CSS v4 + custom CSS variables            |
-| Icons     | Lucide React                                      |
-| Markdown  | react-markdown + remark-math + rehype-katex       |
-| AI        | Google Gemini 3.8 Flash (`@google/generative-ai`) |
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| UI | React 19 + Framer Motion |
+| Styling | Tailwind CSS v4 + custom CSS variables |
+| Icons | Lucide React |
+| Markdown | react-markdown + remark-math + rehype-katex |
+| AI | Google Gemini 3.8 Flash (`@google/generative-ai`) |
 
 ### Flutter App
-
-| Layer        | Technology             |
-| ------------ | ---------------------- |
-| Framework    | Flutter 3 (Material 3) |
-| Language     | Dart                   |
-| HTTP         | `http` package         |
-| Image Picker | `image_picker`         |
-| Markdown     | `flutter_markdown`     |
-| Math / LaTeX | `flutter_math_fork`    |
-| PDF Export   | `pdf` + `printing`     |
-| Fonts        | `google_fonts` (Inter) |
+| Layer | Technology |
+|---|---|
+| Framework | Flutter 3 (Material 3) |
+| Language | Dart |
+| HTTP | `http` package |
+| Image Picker | `image_picker` |
+| Markdown | `flutter_markdown` |
+| Math / LaTeX | `flutter_math_fork` |
+| PDF Export | `pdf` + `printing` |
+| Fonts | `google_fonts` (Inter) |
 
 ---
 
 ## Getting Started — Web App
 
 ### Prerequisites
-
 - Node.js 18+
 - A Google Gemini API key → [Get one here](https://aistudio.google.com/app/apikey)
 
 ### 1. Install dependencies
-
 ```bash
 npm install
 ```
 
 ### 2. Set your API key
-
 Create `.env.local` in the project root:
-
 ```env
 GEMINI_API_KEY=your_actual_key_here
 ```
 
 ### 3. Run in development
-
 ```bash
 npm run dev
 ```
-
 Open [http://localhost:3000](http://localhost:3000).
 
 ### 4. Build for production
-
 ```bash
 npm run build
 npm start
@@ -173,7 +153,6 @@ npm start
 ## Getting Started — Flutter Android App
 
 ### Prerequisites
-
 - Flutter 3.x (`flutter --version`)
 - Android Studio or VS Code with Flutter extension
 - An Android device or emulator (API 21+)
@@ -200,14 +179,12 @@ final String kBaseUrl = kIsWeb
 > **Note:** The Next.js web server must be running for the Flutter app to work. The Flutter app calls the same API routes — it does **not** embed the Gemini API key.
 
 ### 2. Install dependencies
-
 ```bash
 cd mobile
 flutter pub get
 ```
 
 ### 3. Run on Android
-
 ```bash
 flutter run
 ```
@@ -225,7 +202,6 @@ All routes are Next.js App Router handlers in `src/app/api/`.
 Analyzes exam question images and returns a structured breakdown.
 
 **Request body:**
-
 ```json
 {
   "images": ["data:image/jpeg;base64,...", "..."]
@@ -233,7 +209,6 @@ Analyzes exam question images and returns a structured breakdown.
 ```
 
 **Response:**
-
 ```json
 {
   "core_concepts": ["Concept A", "Concept B"],
@@ -249,7 +224,6 @@ Analyzes exam question images and returns a structured breakdown.
 Generates a new exam-style practice question based on the triage output.
 
 **Request body:**
-
 ```json
 {
   "core_concepts": ["Concept A", "Concept B"],
@@ -258,7 +232,6 @@ Generates a new exam-style practice question based on the triage output.
 ```
 
 **Response:**
-
 ```json
 {
   "markdown": "## Question\n\nGiven that..."
@@ -272,7 +245,6 @@ Generates a new exam-style practice question based on the triage output.
 Returns one Socratic hint for a practice question. Hints are progressively more specific; previous hints are passed in to avoid repetition. **Never reveals the answer.**
 
 **Request body:**
-
 ```json
 {
   "question": "## Question\n\nGiven that...",
@@ -281,7 +253,6 @@ Returns one Socratic hint for a practice question. Hints are progressively more 
 ```
 
 **Response:**
-
 ```json
 {
   "hint": "Think about what happens when the boundary condition changes..."
@@ -294,16 +265,15 @@ Returns one Socratic hint for a practice question. Hints are progressively more 
 
 ### Next.js Web App
 
-| Platform                    | Free tier  | Notes                                                                                          |
-| --------------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
-| **Vercel** ✅ (recommended) | ✅ Yes     | Zero-config Next.js support. Add `GEMINI_API_KEY` in project settings → Environment Variables. |
-| **Railway**                 | ✅ Limited | No function timeout limits. Good fallback.                                                     |
-| **Firebase App Hosting**    | ❌ No      | Requires Blaze (pay-as-you-go) plan.                                                           |
+| Platform | Free tier | Notes |
+|---|---|---|
+| **Vercel** ✅ (recommended) | ✅ Yes | Zero-config Next.js support. Add `GEMINI_API_KEY` in project settings → Environment Variables. |
+| **Railway** | ✅ Limited | No function timeout limits. Good fallback. |
+| **Firebase App Hosting** | ❌ No | Requires Blaze (pay-as-you-go) plan. |
 
 ### Flutter Web App
 
 Build and deploy to Firebase Hosting (free tier):
-
 ```bash
 cd mobile
 flutter build web --release
@@ -315,7 +285,6 @@ firebase deploy --only hosting
 ### Flutter Android App
 
 Build a release APK and distribute via Firebase App Distribution (free):
-
 ```bash
 cd mobile
 flutter build apk --release
@@ -326,13 +295,9 @@ flutter build apk --release
 
 ## Environment Variables
 
-| Variable                           | Required | Description                                                                                                                            |
-| ---------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `GEMINI_API_KEY`                   | ✅       | Google Gemini API key. Get one at [aistudio.google.com](https://aistudio.google.com/app/apikey). Never expose this on the client side. |
-| `GEMINI_MODEL`                     | ❌       | Gemini model to use (default: `gemini-3.8-flash`). Automatic fallback cascades through `3.6` → `3.5` → `3.1-flash-lite`.               |
-| `FIREBASE_SERVICE_ACCOUNT_JSON`    | ❌       | Service account JSON string for Firebase Admin (enables server-side quota tracking & history persistence).                             |
-| `NEXT_PUBLIC_FIREBASE_API_KEY`     | ❌       | Firebase Client API key (for optional user authentication).                                                                            |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | ❌       | Firebase Auth domain.                                                                                                                  |
-| `NEXT_PUBLIC_FIREBASE_PROJECT_ID`  | ❌       | Firebase Project ID.                                                                                                                   |
+| Variable | Required | Description |
+|---|---|---|
+| `GEMINI_API_KEY` | ✅ | Google Gemini API key. Get one at [aistudio.google.com](https://aistudio.google.com/app/apikey). Never expose this on the client side. |
+| `GEMINI_MODEL` | ❌ | Gemini model to use (default: `gemini-3.8-flash` with auto-fallback to `gemini-3.6-flash`). |
 
-> Secret keys (`GEMINI_API_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`) are only used server-side in Next.js API routes and are never sent to the browser or the Flutter app.
+> The key is only used server-side in the Next.js API routes. It is never sent to the browser or the Flutter app.
