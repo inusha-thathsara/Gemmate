@@ -20,13 +20,28 @@ const imageDataUrl = z
   )
   .max(MAX_DATA_URL_LENGTH, "Each image must be 5 MB or smaller.");
 
-export const triageSchema = z.object({
-  images: z
-    .array(imageDataUrl)
-    .min(1, "Provide at least one image.")
-    .max(MAX_IMAGES, `Provide at most ${MAX_IMAGES} images.`),
-  idToken: z.string().max(4096).optional(),
-});
+export const triageSchema = z
+  .object({
+    images: z
+      .array(imageDataUrl)
+      .max(MAX_IMAGES, `Provide at most ${MAX_IMAGES} images.`)
+      .optional(),
+    questionText: z
+      .string()
+      .trim()
+      .max(20000, "Question text is too long.")
+      .optional(),
+    idToken: z.string().max(4096).optional(),
+  })
+  .refine(
+    (data) =>
+      (data.images && data.images.length > 0) ||
+      (data.questionText && data.questionText.length > 0),
+    {
+      message:
+        "Please provide either an image of the question or type/paste the question text.",
+    },
+  );
 
 const conceptString = z.string().trim().min(1).max(2000);
 

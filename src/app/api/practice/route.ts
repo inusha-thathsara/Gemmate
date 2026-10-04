@@ -3,10 +3,7 @@ import { verifyAuth, getClientIp } from "../../../../lib/apiAuth";
 import { checkRateLimit } from "../../../../lib/rateLimit";
 import { practiceSchema, firstIssueMessage } from "../../../../lib/validation";
 import { serverError } from "../../../../lib/apiError";
-import {
-  getGeminiApiKey,
-  generateWithFallback,
-} from "../../../../lib/geminiEnv";
+import { generatePracticeQuestion } from "../../../../lib/gemmaEnv";
 
 export async function POST(req: NextRequest) {
   try {
@@ -20,24 +17,12 @@ export async function POST(req: NextRequest) {
     }
 
     const coreConcepts = parsed.data.core_concepts ?? [];
-    const theTrap = Array.isArray(parsed.data.the_trap)
-      ? parsed.data.the_trap
-      : parsed.data.the_trap
-        ? [parsed.data.the_trap]
-        : [];
+    const theTrap = parsed.data.the_trap;
 
-    if (!coreConcepts.length && !theTrap.length) {
+    if (!coreConcepts.length && !theTrap) {
       return NextResponse.json(
         { error: "Provide core_concepts and/or the_trap." },
         { status: 400 },
-      );
-    }
-
-    const apiKey = getGeminiApiKey();
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "GEMINI_API_KEY is not configured." },
-        { status: 500 },
       );
     }
 
@@ -63,24 +48,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const trapText =
-      theTrap.length === 1
-        ? `And this specific trick/trap: ${theTrap[0]}`
-        : `And these specific tricks/traps:\n${theTrap.map((t, i) => `${i + 1}. ${t}`).join("\n")}`;
-    const prompt = `Based on these core concepts: ${coreConcepts.join(", ")}
-${trapText}
-
-Generate a brand new, highly difficult university-level exam question. Return the response in clean Markdown.`;
-
-    const { result } = await generateWithFallback({
-      apiKey,
-      contents: prompt,
-      systemInstruction:
-        "You are a university examiner known for writing deceptively tricky, highly challenging exam questions. You must return ONLY the question in clean Markdown — no preamble, no explanations, no answers.",
+    const practiceResult = await generatePracticeQuestion({
+      coreConcepts,
+      theTrap,
     });
-    const markdown = result.response.text();
 
-    return NextResponse.json({ markdown });
+    return NextResponse.json(practiceResult);
   } catch (err: unknown) {
     return serverError("/api/practice", err);
   }

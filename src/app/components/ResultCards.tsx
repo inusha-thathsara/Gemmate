@@ -5,11 +5,16 @@ import { Lightbulb, Skull, Swords } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
+import VoiceButton from "./VoiceButton";
 
 export interface TriageData {
   coreConcepts: string[];
   theTrap: string[];
   attackPlan: string[];
+  extractedQuestion?: string;
+  modelUsed?: string;
+  inferenceMode?: string;
+  latencyMs?: number;
 }
 
 const CARDS = [
@@ -59,6 +64,17 @@ export default function ResultCards({ data }: { data: TriageData }) {
     >
       {CARDS.map((card) => {
         const Icon = card.icon;
+
+        // Build spoken text for ElevenLabs voice coach
+        const speechText =
+          card.key === "concepts"
+            ? `Here are the core concepts: ${data.coreConcepts.join(". ")}`
+            : card.key === "trap"
+              ? `Watch out for the traps in this question: ${data.theTrap.join(". ")}`
+              : `Here is your attack plan to solve this question: ${data.attackPlan
+                  .map((step, idx) => `Step ${idx + 1}: ${step}`)
+                  .join(". ")}`;
+
         return (
           <motion.div
             key={card.key}
@@ -101,39 +117,54 @@ export default function ResultCards({ data }: { data: TriageData }) {
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 12,
+                  justifyContent: "space-between",
                   marginBottom: 16,
+                  flexWrap: "wrap",
+                  gap: 10,
                 }}
               >
-                <div
-                  style={{
-                    width: 38,
-                    height: 38,
-                    borderRadius: 12,
-                    flexShrink: 0,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: card.glow,
-                    border: `1px solid ${card.borderGlow}`,
-                  }}
-                >
-                  <Icon size={18} color={card.iconColor} />
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div
+                    style={{
+                      width: 38,
+                      height: 38,
+                      borderRadius: 12,
+                      flexShrink: 0,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: card.glow,
+                      border: `1px solid ${card.borderGlow}`,
+                    }}
+                  >
+                    <Icon size={18} color={card.iconColor} />
+                  </div>
+                  <h3
+                    style={{
+                      color: "var(--text-1)",
+                      fontWeight: 800,
+                      fontSize: 15,
+                      letterSpacing: -0.4,
+                    }}
+                  >
+                    {card.key === "trap"
+                      ? data.theTrap.length > 1
+                        ? "The Traps"
+                        : "The Trap"
+                      : card.title}
+                  </h3>
                 </div>
-                <h3
-                  style={{
-                    color: "var(--text-1)",
-                    fontWeight: 800,
-                    fontSize: 15,
-                    letterSpacing: -0.4,
-                  }}
-                >
-                  {card.key === "trap"
-                    ? data.theTrap.length > 1
-                      ? "The Traps"
-                      : "The Trap"
-                    : card.title}
-                </h3>
+
+                {/* ElevenLabs Voice Button */}
+                <VoiceButton
+                  text={speechText}
+                  label={
+                    card.key === "plan"
+                      ? "Listen to Attack Plan"
+                      : "Listen to Coach"
+                  }
+                  accentColor={card.iconColor}
+                />
               </div>
 
               {/* Content */}
@@ -212,7 +243,7 @@ export default function ResultCards({ data }: { data: TriageData }) {
                           {i + 1}
                         </span>
                       )}
-                      {/* ── Render trap as Markdown so bold/italic/LaTeX work ── */}
+                      {/* Render trap as Markdown */}
                       <div
                         style={{
                           flex: 1,

@@ -1,338 +1,138 @@
-# ⚡ Triage AI
+# 💎 Gemmate: Open-Source Voice Companion for Cracking Exam Traps
 
-> **Crack your exam question instantly.**  
-> Upload a question image → get core concepts, the hidden trap, and a step-by-step attack plan — powered by Google Gemini 3.8 Flash.
-
-🌐 **Live demo:** [bora-quiz-helper.vercel.app](https://bora-quiz-helper.vercel.app)
-
----
-
-## Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Tech Stack](#tech-stack)
-- [Getting Started — Web App](#getting-started--web-app)
-- [Getting Started — Flutter Android App](#getting-started--flutter-android-app)
-- [API Reference](#api-reference)
-- [Deployment](#deployment)
-- [Environment Variables](#environment-variables)
+<div align="center">
+  <img src="public/icon.png" width="128" height="128" alt="Gemmate Logo" style="border-radius: 28px; box-shadow: 0 0 25px rgba(56,189,248,0.4);" />
+  <br />
+  <h3>Your open-weight voice study partner for mastering deceptive exam questions.</h3>
+  <p><strong>Built with ❤️ for my friend Bora for the DEV Hacktoberfest 2026 Weekend Challenge</strong></p>
+  <p>
+    <em>Competing in <strong>Best Use of Gemma ($200)</strong> & <strong>Best Use of ElevenLabs ($100)</strong></em>
+  </p>
+</div>
 
 ---
 
-## Overview
+## 📖 The Story Behind Gemmate
 
-Triage AI is a full-stack AI tool for students preparing for technical exams. It takes one or more photos of an exam question and returns a structured breakdown:
+My close friend **Bora** is an exceptionally diligent computer science student. He spends weeks reading textbooks and practicing algorithms, but whenever midterms or finals approach, deceptive questions trigger acute exam anxiety:
 
-| Card              | What it tells you                                  |
-| ----------------- | -------------------------------------------------- |
-| **Core Concepts** | The fundamental topics you need to know            |
-| **The Trap(s)**   | The trick or subtle pitfall hidden in the question |
-| **Attack Plan**   | A step-by-step strategy for solving the question   |
+- Deceptive edge cases (e.g. assuming worst-case hash collisions are $O(1)$)
+- Subtly contradictory boundary constraints and unit tricks
+- Overwhelming blocks of text designed to induce time panic
 
-Beyond triage, it generates practice questions based on the same concepts and traps, provides Socratic hints (nudges, not answers), and can export questions as PDFs.
+Generic AI tools failed him: pasting a question into standard chatbots dumped walls of final answers, robbing him of the chance to learn how to deconstruct traps. Furthermore, expensive subscription fees and spotty Wi-Fi in underground library basements made cloud-only assistants unreliable.
 
----
-
-## Features
-
-- 📸 **Multi-image upload** — Up to 3 images (gallery or camera)
-- 🧠 **AI Triage** — Core concepts, trap detection, attack plan
-- ⚡ **Gemini 3.x Flash + High Availability** — Powered by `gemini-3.8-flash` with automatic exponential backoff retry and cascading model fallback (`3.8` → `3.6` → `3.5` → `3.1-flash-lite`) to survive Google traffic spikes
-- 🎯 **Multiple traps** — Identifies all traps when more than one exists
-- ✏️ **Practice questions** — Generate multiple questions sequentially
-- 💡 **Progressive hints** — Up to 3 Socratic hints per question (never gives answers)
-- ↺ **Regenerate** — Re-generate any individual question
-- ⬇ **PDF export** — Save practice questions as formatted PDFs
-- 🛑 **Cancel in-flight** — Interrupt a triage or generation at any time
-- 📱 **Cross-platform** — Next.js web app + Flutter (Web & Android)
+**Gemmate** solves this: an empathetic, open-weight AI companion that **never reveals direct answers**. Instead, it uses **Google Gemma** to triage the problem into an actionable Attack Plan, while **ElevenLabs** provides a comforting Socratic voice to talk him through the trap out loud.
 
 ---
 
-## Project Structure
+## ✨ Features
 
-```
-Bora/
-├── src/                          # Next.js web application
-│   └── app/
-│       ├── api/
-│       │   ├── triage/route.ts   # POST /api/triage
-│       │   ├── practice/route.ts # POST /api/practice
-│       │   └── hint/route.ts     # POST /api/hint
-│       ├── components/
-│       │   ├── ImageUpload.tsx
-│       │   ├── ResultCards.tsx
-│       │   ├── PracticeCard.tsx
-│       │   ├── SignInButton.tsx  # Optional Firebase Auth
-│       │   └── SkeletonLoader.tsx
-│       ├── utils/
-│       │   └── exportPdf.ts      # Browser-print PDF export
-│       ├── globals.css
-│       ├── layout.tsx
-│       └── page.tsx
-│
-├── lib/                          # Backend utilities & resilience layer
-│   ├── geminiEnv.ts              # Gemini 3.x caller, backoff retry & multi-tier model fallback
-│   ├── apiAuth.ts                # Firebase ID token validation
-│   ├── apiError.ts               # Secure error logging & dev diagnostics
-│   ├── firebaseAdmin.ts          # Server-side Firebase Admin SDK
-│   ├── firebaseClient.ts         # Client-side Firebase SDK
-│   ├── rateLimit.ts              # Firestore rate limiting & abuse protection
-│   └── validation.ts             # Zod input schemas
-│
-├── mobile/                       # Flutter Android application
-│   └── lib/
-│       ├── config.dart           # ← Edit backend URL here
-│       ├── main.dart
-│       ├── models/
-│       │   └── triage_result.dart
-│       ├── services/
-│       │   └── api_service.dart
-│       ├── screens/
-│       │   ├── home_screen.dart
-│       │   └── result_screen.dart
-│       └── widgets/
-│           ├── image_upload_widget.dart
-│           ├── triage_card.dart
-│           └── practice_question_card.dart
-│
-├── .env.local                    # Secret keys (never commit)
-└── package.json
+- 🧠 **Google Gemma Open-Weight Reasoning**: Local inference via Ollama (`gemma3:1b` / `gemma4:12b`) for sub-second, 100% private and offline study sessions.
+- 🎙️ **ElevenLabs Socratic Voice Coach**: Audio breakdown of Attack Plans and progressive hints streamed in real-time (`audio/mpeg`) with animated soundwaves.
+- 📸 **Dual Input Flexibility**: Upload photos of printed exams (transcribed via Moondream vision model) or paste markdown directly with 3 instant sample questions.
+- 🎯 **Exam Trap Deconstruction**: Extracts _Core Concepts_, _The Trap_, and a sequential 4-step _Attack Plan_.
+- 💡 **Progressive Socratic Hints**: Nudges Bora forward step-by-step without spoiling the final answer.
+- ✏️ **Targeted Practice Drills**: Dynamically generates fresh drill questions targeting the exact same trap with new variables.
+- 🌐 **Why Open Innovation Matters**: A dedicated in-app modal articulating why local open-source AI defends student equity, privacy, and offline accessibility.
+
+---
+
+## 🛠️ Architecture & Tech Stack
+
+```mermaid
+graph TD
+    A[Bora: Exam Question / Photo] --> B[Gemmate Next.js 16 UI]
+    B -->|Base64 Image / Text| C[Next.js App Router API]
+    C -->|Local Vision OCR| D[Moondream / Ollama]
+    C -->|Structured Reasoning| E[Google Gemma 3 / 4 Ollama]
+    E -->|JSON Attack Plan + The Trap| C
+    C -->|Text Stream| F[ElevenLabs Voice Engine]
+    F -->|audio/mpeg stream| B
+    B -->|Audio + KaTeX Math UI| G[Calm, Prepared Student]
 ```
 
----
-
-## Tech Stack
-
-### Web App
-
-| Layer     | Technology                                        |
-| --------- | ------------------------------------------------- |
-| Framework | Next.js 16 (App Router)                           |
-| Language  | TypeScript                                        |
-| UI        | React 19 + Framer Motion                          |
-| Styling   | Tailwind CSS v4 + custom CSS variables            |
-| Icons     | Lucide React                                      |
-| Markdown  | react-markdown + remark-math + rehype-katex       |
-| AI        | Google Gemini 3.8 Flash (`@google/generative-ai`) |
-
-### Flutter App
-
-| Layer        | Technology             |
-| ------------ | ---------------------- |
-| Framework    | Flutter 3 (Material 3) |
-| Language     | Dart                   |
-| HTTP         | `http` package         |
-| Image Picker | `image_picker`         |
-| Markdown     | `flutter_markdown`     |
-| Math / LaTeX | `flutter_math_fork`    |
-| PDF Export   | `pdf` + `printing`     |
-| Fonts        | `google_fonts` (Inter) |
+- **Framework**: Next.js 16 (App Router, Turbopack), React 19, Tailwind CSS v4, Framer Motion
+- **Open-Source AI Engine**: Google Gemma (`gemma3:1b`, `gemma4:12b` via local Ollama; Groq `gemma2-9b-it` / Google AI Studio cloud fallback)
+- **Voice Intelligence**: ElevenLabs Text-to-Speech API with chunked streaming & in-memory caching
+- **Typography & Math**: KaTeX, `remark-math`, `rehype-katex`, Outfit / Inter fonts
 
 ---
 
-## Getting Started — Web App
+## 🚀 Getting Started
 
-### Prerequisites
+### 1. Prerequisites
 
-- Node.js 18+
-- A Google Gemini API key → [Get one here](https://aistudio.google.com/app/apikey)
+- [Node.js](https://nodejs.org) (v20+)
+- [Ollama](https://ollama.com) (for local open-weight inference)
+- [ElevenLabs API Key](https://elevenlabs.io) (for voice playback)
 
-### 1. Install dependencies
+### 2. Setup Ollama Models
 
 ```bash
+# Pull lightweight Gemma 3 (fits 100% in consumer GPU VRAM)
+ollama pull gemma3:1b
+
+# Optional: Vision model for image transcription
+ollama pull moondream:latest
+```
+
+### 3. Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/inusha-thathsara/Gemmate.git
+cd Gemmate
+
+# Install dependencies
 npm install
 ```
 
-### 2. Set your API key
+### 4. Configure Environment
 
-Create `.env.local` in the project root:
+Create a `.env.local` file in the project root:
 
 ```env
-GEMINI_API_KEY=your_actual_key_here
+# Local Gemma Engine (Ollama)
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=gemma3:1b
+OLLAMA_FALLBACK_MODEL=gemma4:12b
+
+# ElevenLabs Voice AI
+ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
+ELEVENLABS_VOICE_ID=21m00Tcm4TlvDq8ikWAM
+
+# Cloud Fallback (Optional for cloud deployments)
+GROQ_API_KEY=your_groq_api_key_here
+GEMMA_CLOUD_MODEL=gemma2-9b-it
 ```
 
-### 3. Run in development
+### 5. Run Development Server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
-### 4. Build for production
-
-```bash
-npm run build
-npm start
-```
+Open [http://localhost:3000](http://localhost:3000) to view the app!
 
 ---
 
-## Getting Started — Flutter Android App
+## ☁️ Deployment (Render / Vercel)
 
-### Prerequisites
+Gemmate is production-ready.
 
-- Flutter 3.x (`flutter --version`)
-- Android Studio or VS Code with Flutter extension
-- An Android device or emulator (API 21+)
+### On Render:
 
-### 1. Point to your backend
-
-Edit `mobile/lib/config.dart`:
-
-```dart
-import 'package:flutter/foundation.dart' show kIsWeb;
-
-// Auto-selects the correct URL based on platform:
-final String kBaseUrl = kIsWeb
-    ? 'http://localhost:3000'       // Flutter Web dev
-    : 'http://10.0.2.2:3000';      // Android emulator
-
-// Physical Android device — change to your LAN IP:
-// 'http://192.168.1.xx:3000'
-
-// Production — change to your deployed Vercel URL:
-// 'https://bora-quiz-helper.vercel.app'
-```
-
-> **Note:** The Next.js web server must be running for the Flutter app to work. The Flutter app calls the same API routes — it does **not** embed the Gemini API key.
-
-### 2. Install dependencies
-
-```bash
-cd mobile
-flutter pub get
-```
-
-### 3. Run on Android
-
-```bash
-flutter run
-```
-
-Or open `mobile/` in Android Studio and press **Run**.
+1. Create a **New Web Service** and connect this repository.
+2. Set **Build Command**: `npm install && npm run build`
+3. Set **Start Command**: `npm start`
+4. In **Environment Variables**, add:
+   - `ELEVENLABS_API_KEY`
+   - `ELEVENLABS_VOICE_ID`
+   - `GROQ_API_KEY` _(or `GEMINI_API_KEY` for cloud open-weight Gemma fallback)_
 
 ---
 
-## API Reference
+## 📄 License
 
-All routes are Next.js App Router handlers in `src/app/api/`.
-
-### `POST /api/triage`
-
-Analyzes exam question images and returns a structured breakdown.
-
-**Request body:**
-
-```json
-{
-  "images": ["data:image/jpeg;base64,...", "..."]
-}
-```
-
-**Response:**
-
-```json
-{
-  "core_concepts": ["Concept A", "Concept B"],
-  "the_trap": ["The first trick", "The second trick"],
-  "attack_plan": ["Step 1", "Step 2", "Step 3"]
-}
-```
-
----
-
-### `POST /api/practice`
-
-Generates a new exam-style practice question based on the triage output.
-
-**Request body:**
-
-```json
-{
-  "core_concepts": ["Concept A", "Concept B"],
-  "the_trap": ["The trick"]
-}
-```
-
-**Response:**
-
-```json
-{
-  "markdown": "## Question\n\nGiven that..."
-}
-```
-
----
-
-### `POST /api/hint`
-
-Returns one Socratic hint for a practice question. Hints are progressively more specific; previous hints are passed in to avoid repetition. **Never reveals the answer.**
-
-**Request body:**
-
-```json
-{
-  "question": "## Question\n\nGiven that...",
-  "existing_hints": ["First hint already shown"]
-}
-```
-
-**Response:**
-
-```json
-{
-  "hint": "Think about what happens when the boundary condition changes..."
-}
-```
-
----
-
-## Deployment
-
-### Next.js Web App
-
-| Platform                    | Free tier  | Notes                                                                                          |
-| --------------------------- | ---------- | ---------------------------------------------------------------------------------------------- |
-| **Vercel** ✅ (recommended) | ✅ Yes     | Zero-config Next.js support. Add `GEMINI_API_KEY` in project settings → Environment Variables. |
-| **Railway**                 | ✅ Limited | No function timeout limits. Good fallback.                                                     |
-| **Firebase App Hosting**    | ❌ No      | Requires Blaze (pay-as-you-go) plan.                                                           |
-
-### Flutter Web App
-
-Build and deploy to Firebase Hosting (free tier):
-
-```bash
-cd mobile
-flutter build web --release
-firebase deploy --only hosting
-```
-
-> Update `kBaseUrl` in `config.dart` to your deployed Vercel URL before building.
-
-### Flutter Android App
-
-Build a release APK and distribute via Firebase App Distribution (free):
-
-```bash
-cd mobile
-flutter build apk --release
-# APK: mobile/build/app/outputs/flutter-apk/app-release.apk
-```
-
----
-
-## Environment Variables
-
-| Variable                           | Required | Description                                                                                                                            |
-| ---------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `GEMINI_API_KEY`                   | ✅       | Google Gemini API key. Get one at [aistudio.google.com](https://aistudio.google.com/app/apikey). Never expose this on the client side. |
-| `GEMINI_MODEL`                     | ❌       | Gemini model to use (default: `gemini-3.8-flash`). Automatic fallback cascades through `3.6` → `3.5` → `3.1-flash-lite`.               |
-| `FIREBASE_SERVICE_ACCOUNT_JSON`    | ❌       | Service account JSON string for Firebase Admin (enables server-side quota tracking & history persistence).                             |
-| `NEXT_PUBLIC_FIREBASE_API_KEY`     | ❌       | Firebase Client API key (for optional user authentication).                                                                            |
-| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | ❌       | Firebase Auth domain.                                                                                                                  |
-| `NEXT_PUBLIC_FIREBASE_PROJECT_ID`  | ❌       | Firebase Project ID.                                                                                                                   |
-
-> Secret keys (`GEMINI_API_KEY`, `FIREBASE_SERVICE_ACCOUNT_JSON`) are only used server-side in Next.js API routes and are never sent to the browser or the Flutter app.
+Distributed under the MIT License. See `LICENSE` for more information.

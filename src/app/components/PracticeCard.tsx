@@ -20,6 +20,7 @@ import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import { exportQuestionAsPdf } from "../utils/exportPdf";
 import { getIdToken } from "../../../lib/firebaseClient";
+import VoiceButton from "./VoiceButton";
 
 interface PracticeCardProps {
   coreConcepts: string[];
@@ -440,6 +441,12 @@ export default function PracticeCard({
                       >
                         <RefreshCw size={12} />
                       </button>
+                      {/* Voice Listen */}
+                      <VoiceButton
+                        text={q.markdown}
+                        compact
+                        accentColor="#818cf8"
+                      />
                       {/* Remove */}
                       <button
                         onClick={() => removeQuestion(q.id)}
@@ -675,6 +682,18 @@ export default function PracticeCard({
                                         >
                                           {hint}
                                         </ReactMarkdown>
+                                      </div>
+                                      <div
+                                        style={{
+                                          marginLeft: "auto",
+                                          flexShrink: 0,
+                                        }}
+                                      >
+                                        <VoiceButton
+                                          text={hint}
+                                          compact
+                                          accentColor="#fbbf24"
+                                        />
                                       </div>
                                     </div>
                                   </motion.div>

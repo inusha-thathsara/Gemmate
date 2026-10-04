@@ -15,6 +15,7 @@ interface ImageEntry {
 interface ImageUploadProps {
   images?: ImageEntry[];
   onImagesChange: (entries: ImageEntry[]) => void;
+  disabled?: boolean;
 }
 
 const MAX_IMAGES = 3;

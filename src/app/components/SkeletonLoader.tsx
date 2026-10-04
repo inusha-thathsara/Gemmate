@@ -101,7 +101,11 @@ function SkeletonCard({
   );
 }
 
-export default function SkeletonLoader() {
+interface SkeletonLoaderProps {
+  onCancel?: () => void;
+}
+
+export default function SkeletonLoader({ onCancel }: SkeletonLoaderProps) {
   const cards = [
     { accent: "linear-gradient(90deg,#4f8eff,#6366f1)", delay: 0 },
     { accent: "linear-gradient(90deg,#fbbf24,#f87171)", delay: 0.12 },
@@ -145,15 +149,41 @@ export default function SkeletonLoader() {
           />
         </div>
         <span style={{ color: "var(--text-2)", fontSize: 13, fontWeight: 500 }}>
-          Analysing with Gemini…
+          Reasoning with Gemma & ElevenLabs…
         </span>
-        <motion.span
-          style={{ marginLeft: "auto", fontSize: 12, color: "var(--text-3)" }}
-          animate={{ opacity: [0.3, 1, 0.3] }}
-          transition={{ duration: 1.6, repeat: Infinity }}
+        <div
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
         >
-          ●●●
-        </motion.span>
+          {onCancel && (
+            <button
+              onClick={onCancel}
+              type="button"
+              style={{
+                fontSize: 12,
+                color: "var(--text-3)",
+                background: "transparent",
+                border: "1px solid var(--border)",
+                borderRadius: 6,
+                padding: "2px 8px",
+                cursor: "pointer",
+              }}
+            >
+              Cancel
+            </button>
+          )}
+          <motion.span
+            style={{ fontSize: 12, color: "var(--text-3)" }}
+            animate={{ opacity: [0.3, 1, 0.3] }}
+            transition={{ duration: 1.6, repeat: Infinity }}
+          >
+            ●●●
+          </motion.span>
+        </div>
       </motion.div>
 
       {cards.map((c, i) => (

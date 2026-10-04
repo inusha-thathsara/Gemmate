@@ -4,12 +4,7 @@ import { verifyAuth, getClientIp } from "../../../../lib/apiAuth";
 import { checkRateLimit } from "../../../../lib/rateLimit";
 import { triageSchema, firstIssueMessage } from "../../../../lib/validation";
 import { serverError } from "../../../../lib/apiError";
-import {
-  getGeminiApiKey,
-  generateWithFallback,
-} from "../../../../lib/geminiEnv";
-
-const SYSTEM_PROMPT = `You are a senior IT undergrad tutoring a batchmate. Analyze the provided exam question images. DO NOT solve the question. Identify ALL traps and tricks present — there may be more than one. Output strictly in JSON format matching this exact schema: {"core_concepts": ["concept 1"], "the_trap": ["The first trick in the question", "Another trick if present"], "attack_plan": ["step 1", "step 2", "step 3"]}.`;
+import { triageExamQuestion } from "../../../../lib/gemmaEnv";
 
 export async function POST(req: NextRequest) {
   try {
@@ -21,15 +16,7 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
-    const { images, idToken } = parsed.data;
-
-    const apiKey = getGeminiApiKey();
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "GEMINI_API_KEY is not configured." },
-        { status: 500 },
-      );
-    }
+    const { images, questionText, idToken } = parsed.data;
 
     // --- Authentication (optional): Bearer header or body.idToken ---
     const auth = await verifyAuth(req, idToken);
@@ -52,7 +39,7 @@ export async function POST(req: NextRequest) {
     const rlKey = uid ? `triage:uid_${uid}` : `triage:ip_${ip}`;
     const withinRate = await checkRateLimit({
       key: rlKey,
-      limit: 10,
+      limit: 20,
       windowSeconds: 60,
     });
     if (!withinRate) {
@@ -62,8 +49,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // --- Daily quota: 5 for authenticated users, 1 for guests per IP ---
-    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    // --- Daily quota check if Firebase Admin is connected ---
+    const today = new Date().toISOString().slice(0, 10);
     const usageDocId = uid ? `${uid}_${today}` : `guest_${ip}_${today}`;
 
     if (admin.apps.length) {
@@ -72,7 +59,7 @@ export async function POST(req: NextRequest) {
         await admin.firestore().runTransaction(async (tx) => {
           const snap = await tx.get(usageRef);
           const count = snap.exists ? snap.data()?.count || 0 : 0;
-          const limit = uid ? 5 : 1;
+          const limit = uid ? 20 : 10;
           if (count >= limit) {
             throw new Error("quota_exceeded");
           }
@@ -96,37 +83,11 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Build inline image parts from validated base64 data URLs
-    const imageParts = images.map((dataUrl) => {
-      const [meta, data] = dataUrl.split(",");
-      const mimeType = meta.replace("data:", "").replace(";base64", "");
-      return { inlineData: { mimeType, data } };
+    // Execute Triage with Open-Source Gemma Model
+    const analysis = await triageExamQuestion({
+      images,
+      questionText,
     });
-
-    const contentPayload = [
-      ...imageParts,
-      {
-        text: "Analyse these exam question images and respond in the required JSON format.",
-      },
-    ];
-
-    const { result, modelUsed } = await generateWithFallback({
-      apiKey,
-      contents: contentPayload,
-      systemInstruction: SYSTEM_PROMPT,
-      responseMimeType: "application/json",
-    });
-
-    const text = result.response.text();
-    let analysis: unknown;
-    try {
-      analysis = JSON.parse(text);
-    } catch {
-      return NextResponse.json(
-        { error: "The AI returned an unexpected response. Please try again." },
-        { status: 502 },
-      );
-    }
 
     // Persist history for authenticated users (best-effort)
     try {
@@ -137,9 +98,10 @@ export async function POST(req: NextRequest) {
           .doc(uid)
           .collection("history")
           .add({
-            imagesCount: images.length,
+            imagesCount: images?.length || 0,
+            hasQuestionText: Boolean(questionText),
             result: analysis,
-            model: modelUsed,
+            model: analysis.model_used,
             createdAt: admin.firestore.FieldValue.serverTimestamp(),
           });
       }

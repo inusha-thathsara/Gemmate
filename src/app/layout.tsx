@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import "katex/dist/katex.min.css";
-import SignInButton from "./components/SignInButton";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -10,28 +9,45 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://bora.local"),
+  metadataBase: new URL("https://gemmate.vercel.app"),
   title: {
-    default: "Triage — Crack Interview Questions",
-    template: "%s | Triage",
+    default: "Gemmate — Open-Source Voice Companion for Cracking Exam Traps",
+    template: "%s | Gemmate",
   },
   description:
-    "Snap or upload your interview question. Triage breaks it down into core concepts, traps to avoid, and a step-by-step attack plan.",
-  applicationName: "Triage",
-  authors: [{ name: "Bora" }],
-  keywords: ["triage", "interview questions", "exam helper", "AI study tool"],
+    "Built for Bora for the Hacktoberfest 2026 Weekend Challenge. Exam question triage powered by Google Gemma open-weight AI and ElevenLabs Socratic voice coaching.",
+  applicationName: "Gemmate",
+  authors: [{ name: "Inusha Gunasekara" }],
+  keywords: [
+    "Gemmate",
+    "Gemma",
+    "ElevenLabs",
+    "Hacktoberfest 2026",
+    "Build for a Friend",
+    "exam triage",
+    "Socratic voice tutor",
+    "open-source AI",
+  ],
   openGraph: {
-    title: "Triage — Crack Interview Questions",
+    title: "Gemmate — Open-Source Voice Companion for Cracking Exam Traps",
     description:
-      "Snap or upload your interview question. Triage breaks it down into core concepts, traps to avoid, and a step-by-step attack plan.",
+      "Built for Bora for the Hacktoberfest 2026 Weekend Challenge. Exam question triage powered by Google Gemma open-weight AI and ElevenLabs Socratic voice coaching.",
     type: "website",
     locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Triage — Crack Interview Questions",
+    title: "Gemmate — Open-Source Voice Companion for Cracking Exam Traps",
     description:
-      "Snap or upload your interview question. Triage breaks it down into core concepts, traps to avoid, and a step-by-step attack plan.",
+      "Built for Bora for the Hacktoberfest 2026 Weekend Challenge. Exam question triage powered by Google Gemma open-weight AI and ElevenLabs Socratic voice coaching.",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.png", type: "image/png", sizes: "64x64" },
+    ],
+    apple: [{ url: "/icon.png", sizes: "180x180", type: "image/png" }],
   },
 };
 
@@ -58,30 +74,7 @@ export default function RootLayout({
           </>
         ) : null}
       </head>
-      <body className={inter.className}>
-        <header
-          style={{
-            padding: 12,
-            borderBottom: "1px solid rgba(255,255,255,0.06)",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div>
-              <h1 style={{ margin: 0 }}>Triage</h1>
-            </div>
-            <div>
-              <SignInButton />
-            </div>
-          </div>
-        </header>
-        {children}
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }
