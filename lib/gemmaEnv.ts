@@ -132,8 +132,10 @@ export async function transcribeImageWithVision(
       const { GoogleGenerativeAI } = await import("@google/generative-ai");
       const ai = new GoogleGenerativeAI(geminiKey);
       const candidateVisionModels = [
-        "gemini-1.5-flash",
-        "gemini-2.0-flash",
+        "gemini-flash-latest",
+        "gemini-3.7-flash",
+        "gemini-3.5-flash",
+        "gemini-flash-lite-latest",
         "gemini-2.5-flash",
       ];
       for (const m of candidateVisionModels) {
@@ -333,10 +335,10 @@ async function queryCloudGemma(
   // 2. Try Google AI Studio (Official Hosted Gemma 2 Open Weights)
   if (geminiKey) {
     const candidateModels = [
-      "gemma-2-9b-it",
-      "gemma-2-27b-it",
-      "gemini-1.5-flash",
-      "gemini-2.0-flash",
+      "gemma-4-31b-it",
+      "gemma-4-26b-a4b-it",
+      "gemini-flash-latest",
+      "gemini-3.7-flash",
     ];
     for (const m of candidateModels) {
       try {
