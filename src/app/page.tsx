@@ -341,7 +341,7 @@ export default function Home() {
                     marginBottom: 14,
                   }}
                 >
-                  <HeartHandshake size={14} style={{ color: "#818cf8" }} />
+                  <Sparkles size={14} style={{ color: "#818cf8" }} />
                   <span
                     style={{
                       color: "#818cf8",
@@ -349,7 +349,7 @@ export default function Home() {
                       fontWeight: 700,
                     }}
                   >
-                    Built for Bora · Hacktoberfest Weekend Challenge
+                    Open-Weight Voice Companion · Hacktoberfest 2026
                   </span>
                 </div>
 
@@ -881,9 +881,9 @@ export default function Home() {
                   }}
                 >
                   This project was built for the{" "}
-                  <strong>Hacktoberfest 2026 Weekend Challenge</strong>. Here is
-                  why an open-source AI approach (Google Gemma) is fundamentally
-                  superior for a student like Bora:
+                  <strong>Hacktoberfest 2026 Challenge</strong>. Here is why an
+                  open-source AI approach (Google Gemma) is fundamentally
+                  superior for students:
                 </p>
 
                 <div
@@ -899,8 +899,8 @@ export default function Home() {
                     {
                       icon: Coins,
                       color: "#fbbf24",
-                      title: "Zero Token Cost for Broke Students",
-                      desc: "Proprietary APIs charge per token. With Gemma running on local Ollama, Bora can triage 500 questions a day without worrying about recurring API bills.",
+                      title: "Zero Token Cost for Students",
+                      desc: "Proprietary APIs charge per token. With Gemma running on local Ollama, students can triage hundreds of questions a day without worrying about recurring API bills.",
                     },
                     {
                       icon: WifiOff,

@@ -4,7 +4,7 @@
   <img src="public/icon.png" width="128" height="128" alt="Gemmate Logo" style="border-radius: 28px; box-shadow: 0 0 25px rgba(56,189,248,0.4);" />
   <br />
   <h3>Your open-weight voice study partner for mastering deceptive exam questions.</h3>
-  <p><strong>Built with ❤️ for my friend Bora for the DEV Hacktoberfest 2026 Weekend Challenge</strong></p>
+  <p><strong>Built for the DEV Hacktoberfest 2026 Challenge</strong></p>
   <p>
     <em>Competing in <strong>Best Use of Gemma ($200)</strong> & <strong>Best Use of ElevenLabs ($100)</strong></em>
   </p>
@@ -12,17 +12,17 @@
 
 ---
 
-## 📖 The Story Behind Gemmate
+## 📖 Why Gemmate?
 
-My close friend **Bora** is an exceptionally diligent computer science student. He spends weeks reading textbooks and practicing algorithms, but whenever midterms or finals approach, deceptive questions trigger acute exam anxiety:
+For students preparing for high-stakes technical exams, deceptive questions frequently trigger acute exam anxiety:
 
 - Deceptive edge cases (e.g. assuming worst-case hash collisions are $O(1)$)
 - Subtly contradictory boundary constraints and unit tricks
 - Overwhelming blocks of text designed to induce time panic
 
-Generic AI tools failed him: pasting a question into standard chatbots dumped walls of final answers, robbing him of the chance to learn how to deconstruct traps. Furthermore, expensive subscription fees and spotty Wi-Fi in underground library basements made cloud-only assistants unreliable.
+Generic AI tools fail students: pasting a question into standard chatbots dumps walls of final answers, robbing them of the chance to learn how to deconstruct traps. Furthermore, expensive subscription fees and spotty Wi-Fi in underground library basements make cloud-only assistants unreliable.
 
-**Gemmate** solves this: an empathetic, open-weight AI companion that **never reveals direct answers**. Instead, it uses **Google Gemma** to triage the problem into an actionable Attack Plan, while **ElevenLabs** provides a comforting Socratic voice to talk him through the trap out loud.
+**Gemmate** solves this: an empathetic, open-weight AI companion that **never reveals direct answers**. Instead, it uses **Google Gemma** to triage the problem into an actionable Attack Plan, while **ElevenLabs** provides a comforting Socratic voice to talk through the trap out loud.
 
 ---
 
@@ -32,7 +32,7 @@ Generic AI tools failed him: pasting a question into standard chatbots dumped wa
 - 🎙️ **ElevenLabs Socratic Voice Coach**: Audio breakdown of Attack Plans and progressive hints streamed in real-time (`audio/mpeg`) with animated soundwaves.
 - 📸 **Dual Input Flexibility**: Upload photos of printed exams (transcribed via Moondream vision model) or paste markdown directly with 3 instant sample questions.
 - 🎯 **Exam Trap Deconstruction**: Extracts _Core Concepts_, _The Trap_, and a sequential 4-step _Attack Plan_.
-- 💡 **Progressive Socratic Hints**: Nudges Bora forward step-by-step without spoiling the final answer.
+- 💡 **Progressive Socratic Hints**: Nudges the student forward step-by-step without spoiling the final answer.
 - ✏️ **Targeted Practice Drills**: Dynamically generates fresh drill questions targeting the exact same trap with new variables.
 - 🌐 **Why Open Innovation Matters**: A dedicated in-app modal articulating why local open-source AI defends student equity, privacy, and offline accessibility.
 
@@ -42,7 +42,7 @@ Generic AI tools failed him: pasting a question into standard chatbots dumped wa
 
 ```mermaid
 graph TD
-    A[Bora: Exam Question / Photo] --> B[Gemmate Next.js 16 UI]
+    A[Student: Exam Question / Photo] --> B[Gemmate Next.js 16 UI]
     B -->|Base64 Image / Text| C[Next.js App Router API]
     C -->|Local Vision OCR| D[Moondream / Ollama]
     C -->|Structured Reasoning| E[Google Gemma 3 / 4 Ollama]

@@ -321,8 +321,8 @@ async function runGemma(
   };
 }
 
-const TRIAGE_SYSTEM_PROMPT = `You are Gemmate, an empathetic, top-tier study partner helping your friend Bora conquer tricky exam questions.
-Your goal is to triage the question to relieve his exam anxiety.
+const TRIAGE_SYSTEM_PROMPT = `You are Gemmate, an empathetic, top-tier study partner helping students conquer tricky exam questions.
+Your goal is to triage the question to relieve their exam anxiety.
 DO NOT solve the question directly or output the final answer.
 Instead, perform a structured triage:
 1. Core Concepts: The essential underlying theoretical principles.
@@ -368,7 +368,7 @@ export async function triageExamQuestion(params: {
     );
   }
 
-  const userPrompt = `Here is the exam question Bora is studying:\n\n${combinedQuestionText}\n\nAnalyze this question, identify all tricks/traps, and output the required JSON format.`;
+  const userPrompt = `Here is the exam question being studied:\n\n${combinedQuestionText}\n\nAnalyze this question, identify all tricks/traps, and output the required JSON format.`;
 
   const { text, model, mode, latencyMs } = await runGemma(
     userPrompt,
@@ -436,8 +436,8 @@ export async function generateSocraticHint(params: {
     ? `Previous hints already given (do NOT repeat these):\n${params.existingHints.map((h, i) => `${i + 1}. ${h}`).join("\n")}`
     : "This is the first hint.";
 
-  const systemPrompt = `You are Gemmate, Bora's Socratic study coach. 
-Give ONE progressive, thought-provoking hint that guides Bora forward without giving away the solution or final formula.
+  const systemPrompt = `You are Gemmate, an empathetic Socratic study coach. 
+Give ONE progressive, thought-provoking hint that guides the student forward without giving away the solution or final formula.
 Keep it conversational, encouraging, and under 3 sentences. Hint Level: ${hintCount + 1}/3.`;
 
   const userPrompt = `Question:\n${params.question}\n\n${previousHintsContext}\n\nGive the next Socratic hint.`;
@@ -469,7 +469,7 @@ export async function generatePracticeQuestion(params: {
     ? params.theTrap.join("; ")
     : params.theTrap || "Subtle edge case";
 
-  const systemPrompt = `You are Gemmate. Generate a brand new, original exam-style practice problem for Bora that tests the same core concepts and features a similar hidden trap.
+  const systemPrompt = `You are Gemmate. Generate a brand new, original exam-style practice problem that tests the same core concepts and features a similar hidden trap.
 Format clearly in Markdown with:
 - ## Practice Question
 - Description and given parameters

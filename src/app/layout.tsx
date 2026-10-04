@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     template: "%s | Gemmate",
   },
   description:
-    "Built for Bora for the Hacktoberfest 2026 Weekend Challenge. Exam question triage powered by Google Gemma open-weight AI and ElevenLabs Socratic voice coaching.",
+    "An open-source exam question triage companion powered by Google Gemma open-weight AI and ElevenLabs Socratic voice coaching.",
   applicationName: "Gemmate",
   authors: [{ name: "Inusha Gunasekara" }],
   keywords: [
@@ -23,7 +23,6 @@ export const metadata: Metadata = {
     "Gemma",
     "ElevenLabs",
     "Hacktoberfest 2026",
-    "Build for a Friend",
     "exam triage",
     "Socratic voice tutor",
     "open-source AI",
@@ -31,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Gemmate — Open-Source Voice Companion for Cracking Exam Traps",
     description:
-      "Built for Bora for the Hacktoberfest 2026 Weekend Challenge. Exam question triage powered by Google Gemma open-weight AI and ElevenLabs Socratic voice coaching.",
+      "An open-source exam question triage companion powered by Google Gemma open-weight AI and ElevenLabs Socratic voice coaching.",
     type: "website",
     locale: "en_US",
   },
@@ -39,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Gemmate — Open-Source Voice Companion for Cracking Exam Traps",
     description:
-      "Built for Bora for the Hacktoberfest 2026 Weekend Challenge. Exam question triage powered by Google Gemma open-weight AI and ElevenLabs Socratic voice coaching.",
+      "An open-source exam question triage companion powered by Google Gemma open-weight AI and ElevenLabs Socratic voice coaching.",
   },
   icons: {
     icon: [
