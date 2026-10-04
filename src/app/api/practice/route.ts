@@ -55,6 +55,15 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(practiceResult);
   } catch (err: unknown) {
-    return serverError("/api/practice", err);
+    console.error("[/api/practice] error:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json(
+      {
+        error:
+          msg ||
+          "Failed to generate practice problem. Please check your API configuration.",
+      },
+      { status: 400 },
+    );
   }
 }

@@ -214,6 +214,7 @@ export default function Home() {
                 width={36}
                 height={36}
                 style={{ objectFit: "cover" }}
+                unoptimized
                 priority
               />
             </div>

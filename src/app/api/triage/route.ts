@@ -111,6 +111,15 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(analysis);
   } catch (err: unknown) {
-    return serverError("/api/triage", err);
+    console.error("[/api/triage] error:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json(
+      {
+        error:
+          msg ||
+          "Unable to triage the exam question. Please verify your GEMINI_API_KEY or GROQ_API_KEY in your Vercel Project Environment Variables.",
+      },
+      { status: 400 },
+    );
   }
 }

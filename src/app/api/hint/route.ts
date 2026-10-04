@@ -48,6 +48,15 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(hintResult);
   } catch (err: unknown) {
-    return serverError("/api/hint", err);
+    console.error("[/api/hint] error:", err);
+    const msg = err instanceof Error ? err.message : String(err);
+    return NextResponse.json(
+      {
+        error:
+          msg ||
+          "Failed to generate hint. Please check your API configuration.",
+      },
+      { status: 400 },
+    );
   }
 }

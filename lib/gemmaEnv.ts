@@ -77,37 +77,135 @@ export async function isOllamaReachable(): Promise<boolean> {
 }
 
 /**
- * Transcribe image to text using Ollama vision model (moondream or qwen-vl).
+ * Transcribe image to text using Ollama vision model (moondream) locally,
+ * or Google Gemini Flash Vision / Groq Vision in the cloud.
  */
 export async function transcribeImageWithVision(
   base64Image: string,
 ): Promise<string> {
-  const cleanBase64 = base64Image.replace(/^data:image\/[a-zA-Z]+;base64,/, "");
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25000);
+  const mimeMatch = base64Image.match(
+    /^data:(image\/[a-zA-Z0-9\+\-]+);base64,/,
+  );
+  const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
+  const cleanBase64 = base64Image
+    .replace(/^data:image\/[a-zA-Z0-9\+\-]+;base64,/, "")
+    .replace(/^data:image\/[a-zA-Z]+;base64,/, "");
 
-    const res = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: OLLAMA_VISION_MODEL,
-        prompt:
-          "Carefully read and transcribe the entire text, mathematical expressions, formulas, and diagrams in this exam question image verbatim.",
-        images: [cleanBase64],
-        stream: false,
-      }),
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
+  // 1. Try local Ollama if reachable
+  const ollamaOnline = await isOllamaReachable();
+  if (ollamaOnline) {
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 25000);
 
-    if (res.ok) {
-      const data = await res.json();
-      return (data.response || "").trim();
+      const res = await fetch(`${OLLAMA_BASE_URL}/api/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: OLLAMA_VISION_MODEL,
+          prompt:
+            "Carefully read and transcribe the entire text, mathematical expressions, formulas, and diagrams in this exam question image verbatim.",
+          images: [cleanBase64],
+          stream: false,
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+
+      if (res.ok) {
+        const data = await res.json();
+        return (data.response || "").trim();
+      }
+    } catch (err) {
+      console.warn("[Vision Transcription - Ollama] Error:", err);
     }
-  } catch (err) {
-    console.warn("[Vision Transcription] Error or timeout:", err);
   }
+
+  // 2. Cloud Fallback: Google Gemini Vision
+  const geminiKey = GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+  if (geminiKey) {
+    try {
+      const { GoogleGenerativeAI } = await import("@google/generative-ai");
+      const ai = new GoogleGenerativeAI(geminiKey);
+      const candidateVisionModels = [
+        "gemini-1.5-flash",
+        "gemini-2.0-flash",
+        "gemini-2.5-flash",
+      ];
+      for (const m of candidateVisionModels) {
+        try {
+          const model = ai.getGenerativeModel({ model: m });
+          const prompt =
+            "Carefully read and transcribe the entire text, mathematical expressions, formulas, and diagrams in this exam question image verbatim. Return only the extracted question text.";
+          const imagePart = {
+            inlineData: {
+              data: cleanBase64,
+              mimeType: mimeType,
+            },
+          };
+          const res = await model.generateContent([prompt, imagePart]);
+          const text = res.response.text().trim();
+          if (text) return text;
+        } catch (mErr) {
+          console.warn(`[Vision Transcription - Gemini ${m}] failed:`, mErr);
+        }
+      }
+    } catch (err) {
+      console.warn("[Vision Transcription - Gemini] Error:", err);
+    }
+  }
+
+  // 3. Cloud Fallback: Groq Vision
+  const groqKey = GROQ_API_KEY || process.env.GROQ_API_KEY;
+  if (groqKey) {
+    const candidateGroqModels = [
+      "llama-3.2-11b-vision-preview",
+      "llama-3.2-90b-vision-preview",
+    ];
+    for (const gm of candidateGroqModels) {
+      try {
+        const res = await fetch(
+          "https://api.groq.com/openai/v1/chat/completions",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${groqKey}`,
+            },
+            body: JSON.stringify({
+              model: gm,
+              messages: [
+                {
+                  role: "user",
+                  content: [
+                    {
+                      type: "text",
+                      text: "Carefully read and transcribe the entire text, mathematical expressions, formulas, and diagrams in this exam question image verbatim.",
+                    },
+                    {
+                      type: "image_url",
+                      image_url: {
+                        url: `data:${mimeType};base64,${cleanBase64}`,
+                      },
+                    },
+                  ],
+                },
+              ],
+              temperature: 0.1,
+            }),
+          },
+        );
+        if (res.ok) {
+          const data = await res.json();
+          const content = (data.choices?.[0]?.message?.content || "").trim();
+          if (content) return content;
+        }
+      } catch (err) {
+        console.warn(`[Vision Transcription - Groq ${gm}] Error:`, err);
+      }
+    }
+  }
+
   return "";
 }
 
@@ -230,30 +328,40 @@ async function queryCloudGemma(
 
   // 2. Try Google AI Studio (Gemini / Gemma)
   if (geminiKey) {
-    try {
-      const { GoogleGenerativeAI } = await import("@google/generative-ai");
-      const ai = new GoogleGenerativeAI(geminiKey);
-      const model = ai.getGenerativeModel({
-        model: "gemini-2.5-flash",
-        generationConfig: {
-          temperature: 0.2,
-          responseMimeType: formatJson ? "application/json" : undefined,
-        },
-        systemInstruction: systemPrompt,
-      });
+    const candidateModels = [
+      "gemini-1.5-flash",
+      "gemini-2.0-flash",
+      "gemini-2.5-flash",
+    ];
+    for (const m of candidateModels) {
+      try {
+        const { GoogleGenerativeAI } = await import("@google/generative-ai");
+        const ai = new GoogleGenerativeAI(geminiKey);
+        const model = ai.getGenerativeModel({
+          model: m,
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: formatJson ? "application/json" : undefined,
+          },
+          systemInstruction: systemPrompt,
+        });
 
-      const result = await model.generateContent(prompt);
-      return {
-        text: result.response.text(),
-        model: "gemini-cloud",
-      };
-    } catch (geminiErr) {
-      console.warn("[Cloud Gemini] Error:", geminiErr);
+        const result = await model.generateContent(prompt);
+        const txt = result.response.text();
+        if (txt) {
+          return {
+            text: txt,
+            model: `gemini-cloud-${m}`,
+          };
+        }
+      } catch (geminiErr) {
+        console.warn(`[Cloud Gemini ${m}] Error:`, geminiErr);
+      }
     }
   }
 
   throw new Error(
-    "Local Ollama is unavailable and neither GROQ_API_KEY nor GEMINI_API_KEY is configured for cloud inference.",
+    "Local Ollama is unavailable on Vercel and neither GEMINI_API_KEY nor GROQ_API_KEY is configured in Vercel Project Environment Variables.",
   );
 }
 
@@ -363,8 +471,19 @@ export async function triageExamQuestion(params: {
   }
 
   if (!combinedQuestionText) {
+    const hasCloudKeys = Boolean(
+      GEMINI_API_KEY ||
+      process.env.GEMINI_API_KEY ||
+      GROQ_API_KEY ||
+      process.env.GROQ_API_KEY,
+    );
+    if (!hasCloudKeys) {
+      throw new Error(
+        "Could not extract question text from the uploaded images because no AI vision keys are configured. Please set GEMINI_API_KEY (from Google AI Studio) or GROQ_API_KEY in your Vercel Project Environment Variables, or use the 'Type or Paste Question' tab.",
+      );
+    }
     throw new Error(
-      "No readable question text or image content could be extracted.",
+      "Could not extract readable question text from the uploaded images. Please ensure the photos are clear and legible, or use the 'Type or Paste Question' tab.",
     );
   }
 
