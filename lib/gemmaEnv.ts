@@ -63,9 +63,13 @@ export const GEMMA_CLOUD_MODEL = getEnvVar("GEMMA_CLOUD_MODEL", "gemma2-9b-it");
  * Check if local Ollama instance is alive and reachable.
  */
 export async function isOllamaReachable(): Promise<boolean> {
+  // On Vercel, localhost Ollama is never available; skip immediately to avoid delay
+  if (process.env.VERCEL) {
+    return false;
+  }
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 2000);
+    const timeout = setTimeout(() => controller.abort(), 1500);
     const res = await fetch(`${OLLAMA_BASE_URL}/api/tags`, {
       signal: controller.signal,
     });
@@ -88,8 +92,8 @@ export async function transcribeImageWithVision(
   );
   const mimeType = mimeMatch ? mimeMatch[1] : "image/jpeg";
   const cleanBase64 = base64Image
-    .replace(/^data:image\/[a-zA-Z0-9\+\-]+;base64,/, "")
-    .replace(/^data:image\/[a-zA-Z]+;base64,/, "");
+    .replace(/^data:[^;]+;base64,/, "")
+    .replace(/[\r\n\s]+/g, "");
 
   // 1. Try local Ollama if reachable
   const ollamaOnline = await isOllamaReachable();
@@ -326,12 +330,13 @@ async function queryCloudGemma(
     }
   }
 
-  // 2. Try Google AI Studio (Gemini / Gemma)
+  // 2. Try Google AI Studio (Official Hosted Gemma 2 Open Weights)
   if (geminiKey) {
     const candidateModels = [
+      "gemma-2-9b-it",
+      "gemma-2-27b-it",
       "gemini-1.5-flash",
       "gemini-2.0-flash",
-      "gemini-2.5-flash",
     ];
     for (const m of candidateModels) {
       try {
@@ -349,13 +354,14 @@ async function queryCloudGemma(
         const result = await model.generateContent(prompt);
         const txt = result.response.text();
         if (txt) {
+          const isGemma = m.startsWith("gemma");
           return {
             text: txt,
-            model: `gemini-cloud-${m}`,
+            model: isGemma ? `google-${m}` : `gemini-cloud-${m}`,
           };
         }
       } catch (geminiErr) {
-        console.warn(`[Cloud Gemini ${m}] Error:`, geminiErr);
+        console.warn(`[Cloud Google ${m}] Error:`, geminiErr);
       }
     }
   }
@@ -453,17 +459,19 @@ export async function triageExamQuestion(params: {
 }): Promise<TriageResult> {
   let combinedQuestionText = (params.questionText || "").trim();
 
-  // If images are provided, transcribe with vision model first
+  // If images are provided, transcribe in parallel with vision model
   if (params.images && params.images.length > 0) {
-    const transcriptions = [];
-    for (let i = 0; i < params.images.length; i++) {
-      const transcription = await transcribeImageWithVision(params.images[i]);
+    const transcriptions: string[] = [];
+    const transcriptionResults = await Promise.all(
+      params.images.map((img) => transcribeImageWithVision(img)),
+    );
+    transcriptionResults.forEach((transcription, i) => {
       if (transcription) {
         transcriptions.push(
           `[Image ${i + 1} Question Content]:\n${transcription}`,
         );
       }
-    }
+    });
     if (transcriptions.length > 0) {
       combinedQuestionText =
         `${combinedQuestionText}\n\n${transcriptions.join("\n\n")}`.trim();
