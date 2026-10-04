@@ -479,15 +479,10 @@ export async function triageExamQuestion(params: {
   }
 
   if (!combinedQuestionText) {
-    const hasCloudKeys = Boolean(
-      GEMINI_API_KEY ||
-      process.env.GEMINI_API_KEY ||
-      GROQ_API_KEY ||
-      process.env.GROQ_API_KEY,
-    );
-    if (!hasCloudKeys) {
+    const hasGemini = Boolean(GEMINI_API_KEY || process.env.GEMINI_API_KEY);
+    if (!hasGemini) {
       throw new Error(
-        "Could not extract question text from the uploaded images because no AI vision keys are configured. Please set GEMINI_API_KEY (from Google AI Studio) or GROQ_API_KEY in your Vercel Project Environment Variables, or use the 'Type or Paste Question' tab.",
+        "Groq has decommissioned all vision and Gemma models on their platform. To enable photo reading and cloud Gemma 2 reasoning on Vercel, please add GEMINI_API_KEY (from https://aistudio.google.com) to your Vercel Environment Variables.",
       );
     }
     throw new Error(
