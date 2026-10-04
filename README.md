@@ -4,9 +4,10 @@
   <img src="public/icon.png" width="128" height="128" alt="Gemmate Logo" style="border-radius: 28px; box-shadow: 0 0 25px rgba(56,189,248,0.4);" />
   <br />
   <h3>Your open-weight voice study partner for mastering deceptive exam questions.</h3>
-  <p><strong>Built for the DEV Hacktoberfest 2026 Challenge</strong></p>
+  <p><strong>Built for the DEV Hacktoberfest 2026 Challenge: Build for a Friend</strong></p>
   <p>
-    <em>Competing in <strong>Best Use of Gemma ($200)</strong> & <strong>Best Use of ElevenLabs ($100)</strong></em>
+    <a href="https://gemmate.inusha.me"><strong>🌐 Live Demo: gemmate.inusha.me</strong></a> &bull;
+    <a href="https://github.com/inusha-thathsara/Gemmate"><strong>📦 GitHub Repository</strong></a>
   </p>
 </div>
 
@@ -117,19 +118,21 @@ Open [http://localhost:3000](http://localhost:3000) to view the app!
 
 ---
 
-## ☁️ Deployment (Render / Vercel)
+## ☁️ Live Deployment
 
-Gemmate is production-ready.
+Gemmate is live in production:
 
-### On Render:
+- **Production URL**: [https://gemmate.inusha.me](https://gemmate.inusha.me)
+- **Hosted on**: Vercel Serverless Edge Network
 
-1. Create a **New Web Service** and connect this repository.
-2. Set **Build Command**: `npm install && npm run build`
-3. Set **Start Command**: `npm start`
-4. In **Environment Variables**, add:
-   - `ELEVENLABS_API_KEY`
-   - `ELEVENLABS_VOICE_ID`
-   - `GROQ_API_KEY` _(or `GEMINI_API_KEY` for cloud open-weight Gemma fallback)_
+### Deploy Your Own:
+
+1. Import this repository into [Vercel](https://vercel.com).
+2. Configure Environment Variables:
+   - `GEMINI_API_KEY`: _(From [aistudio.google.com](https://aistudio.google.com) to power Vision OCR and hosted open-weight Gemma 4)_
+   - `ELEVENLABS_API_KEY`: _(From [elevenlabs.io](https://elevenlabs.io) for voice hints)_
+   - `ELEVENLABS_VOICE_ID`: `21m00Tcm4TlvDq8ikWAM` _(Rachel)_
+3. Deploy!
 
 ---
 
